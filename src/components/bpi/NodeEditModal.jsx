@@ -12,6 +12,7 @@ const NodeEditModal = ({ show, onHide, node, onSave, onDelete, actors = [], canE
         durationUnit: 'menit',
         question: '',
         cost: 0,
+        normTime: '',
     });
 
     useEffect(() => {
@@ -24,6 +25,7 @@ const NodeEditModal = ({ show, onHide, node, onSave, onDelete, actors = [], canE
                 durationUnit: node.data?.durationUnit || 'menit',
                 question: node.data?.question || '',
                 cost: node.data?.cost || 0,
+                normTime: node.data?.normTime || '',
             });
         }
     }, [node]);
@@ -151,6 +153,35 @@ const NodeEditModal = ({ show, onHide, node, onSave, onDelete, actors = [], canE
                                 disabled={!canEdit}
                             />
                         </Form.Group>
+                        <div className="bg-light p-3 rounded-3 border border-light-subtle">
+                            <Form.Group className="mb-0">
+                                <Form.Label className="fw-bold text-primary d-flex align-items-center gap-2 mb-2">
+                                    ⏰ Norm Waktu (Pengingat PIC)
+                                </Form.Label>
+                                <Form.Text className="text-muted d-block mb-2">
+                                    Atur tanggal & jam batas waktu. PIC akan mendapat notifikasi otomatis saat mendekati deadline.
+                                </Form.Text>
+                                <Form.Control 
+                                    type="datetime-local" 
+                                    value={form.normTime} 
+                                    onChange={e => setForm({ ...form, normTime: e.target.value })} 
+                                    disabled={!canEdit}
+                                />
+                                {form.normTime && (
+                                    <div className="mt-2">
+                                        {new Date(form.normTime) < new Date() ? (
+                                            <span className="badge bg-danger d-inline-flex align-items-center gap-1">
+                                                🔴 Sudah melewati deadline!
+                                            </span>
+                                        ) : (
+                                            <span className="badge bg-success d-inline-flex align-items-center gap-1">
+                                                ✅ Deadline: {new Date(form.normTime).toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
+                            </Form.Group>
+                        </div>
                     </>
                 )}
             </Modal.Body>

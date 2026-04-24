@@ -2,7 +2,7 @@
 import { Badge, Button, Card, Col, Container, Form, Modal, Row } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Map, ArrowRight, Trash2, Edit2, Activity, AlertTriangle, TrendingUp, DollarSign, Layers } from 'react-feather';
+import { Plus, Map, ArrowRight, Trash2, Edit2, Activity, AlertTriangle, TrendingUp, DollarSign, Layers, Search, Filter, Grid, List as ListIcon } from 'react-feather';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as XLSX from 'xlsx';
 import { DownloadCloud } from 'react-feather';
@@ -101,7 +101,8 @@ const ProcessMaps = () => {
     const [editingProject, setEditingProject] = useState(null);
     const [form, setForm] = useState({ 
         name: '', 
-        description: '', 
+        description: '',
+        category: 'BPM',
         tenant_id: activeTenantId,
         division_id: '',
         pic: '',
@@ -114,10 +115,16 @@ const ProcessMaps = () => {
     const [errors, setErrors] = useState({});
 
     const resetForm = () => {
-        setForm({ name: '', description: '', tenant_id: activeTenantId, division_id: '', pic: '', actor_id: '' });
+        setForm({ name: '', description: '', category: 'BPM', tenant_id: activeTenantId, division_id: '', pic: '', actor_id: '' });
         setErrors({});
         setExcelFile(null);
     };
+
+    // Search & Filter state
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filterCategory, setFilterCategory] = useState('');
+    const [filterDivision, setFilterDivision] = useState('');
+    const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
 
     const fetchCurrentUser = async () => {
         try {
@@ -212,6 +219,26 @@ const ProcessMaps = () => {
             return sum + score;
         }, 0) / projects.length)
         : 100;
+
+    // Filtered projects based on search + filters (client-side for instant feedback)
+    const filteredProjects = projects.filter(p => {
+        if (searchQuery && !p.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+        if (filterCategory && (p.category || 'BPM') !== filterCategory) return false;
+        if (filterDivision && String(p.division_id) !== String(filterDivision)) return false;
+        return true;
+    });
+
+    // Poll deadline check every 15 minutes for automatic PIC notifications
+    useEffect(() => {
+        const checkDeadlines = async () => {
+            try {
+                await fetch('/api/notifications/check-deadlines');
+            } catch (e) { /* silent */ }
+        };
+        checkDeadlines(); // initial check
+        const interval = setInterval(checkDeadlines, 15 * 60 * 1000);
+        return () => clearInterval(interval);
+    }, []);
 
     const handleSave = async () => {
         const newErrors = {};
@@ -369,6 +396,7 @@ const ProcessMaps = () => {
         setForm({ 
             name: project.name, 
             description: project.description,
+            category: project.category || 'BPM',
             tenant_id: project.tenant_id,
             division_id: project.division_id || '',
             pic: project.pic || '',
@@ -541,6 +569,76 @@ const ProcessMaps = () => {
             </motion.div>
 
             <div className="hk-pg-body">
+                {/* Search & Filter Bar */}
+                <motion.div 
+                    className="mb-4"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.2 }}
+                >
+                    <Card className="card-border shadow-sm">
+                        <Card.Body className="py-3">
+                            <Row className="align-items-center g-3">
+                                <Col lg={4} md={6}>
+                                    <div className="position-relative">
+                                        <Search size={16} className="position-absolute" style={{ left: '12px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }} />
+                                        <Form.Control 
+                                            type="text" 
+                                            placeholder="Cari proyek..." 
+                                            value={searchQuery} 
+                                            onChange={e => setSearchQuery(e.target.value)} 
+                                            style={{ paddingLeft: '36px' }}
+                                        />
+                                    </div>
+                                </Col>
+                                <Col lg={2} md={3} sm={6}>
+                                    <Form.Select 
+                                        value={filterCategory} 
+                                        onChange={e => setFilterCategory(e.target.value)}
+                                        className="border-light-subtle"
+                                    >
+                                        <option value="">Semua Kategori</option>
+                                        <option value="BPM">BPM</option>
+                                        <option value="SBPM">SBPM</option>
+                                    </Form.Select>
+                                </Col>
+                                <Col lg={3} md={3} sm={6}>
+                                    <Form.Select 
+                                        value={filterDivision} 
+                                        onChange={e => setFilterDivision(e.target.value)}
+                                        className="border-light-subtle"
+                                    >
+                                        <option value="">Semua Divisi</option>
+                                        {divs.map(d => (
+                                            <option key={d.id} value={d.id}>{d.name}</option>
+                                        ))}
+                                    </Form.Select>
+                                </Col>
+                                <Col lg={3} md={12} className="d-flex justify-content-end gap-2 align-items-center">
+                                    <Badge bg="soft-secondary" className="text-secondary px-2 py-1 d-flex align-items-center gap-1">
+                                        <Filter size={12} /> {filteredProjects.length} / {projects.length} proyek
+                                    </Badge>
+                                    <div className="btn-group btn-group-sm" role="group">
+                                        <button 
+                                            className={`btn ${viewMode === 'grid' ? 'btn-primary' : 'btn-outline-secondary'}`}
+                                            onClick={() => setViewMode('grid')}
+                                            title="Tampilan Grid"
+                                        >
+                                            <Grid size={14} />
+                                        </button>
+                                        <button 
+                                            className={`btn ${viewMode === 'list' ? 'btn-primary' : 'btn-outline-secondary'}`}
+                                            onClick={() => setViewMode('list')}
+                                            title="Tampilan List"
+                                        >
+                                            <ListIcon size={14} />
+                                        </button>
+                                    </div>
+                                </Col>
+                            </Row>
+                        </Card.Body>
+                    </Card>
+                </motion.div>
                 <motion.div
                     variants={containerVariants}
                     initial="hidden"
@@ -617,7 +715,8 @@ const ProcessMaps = () => {
                 >
                     <Row>
                         <AnimatePresence mode="popLayout">
-                            {projects.map((project, index) => (
+                            {filteredProjects.map((project, index) => (
+                                viewMode === 'grid' ? (
                                 <Col xl={4} md={6} key={project.id} className="mb-4">
                                     <motion.div 
                                         variants={itemVariants}
@@ -626,12 +725,17 @@ const ProcessMaps = () => {
                                         animate="visible"
                                         exit={{ opacity: 0, scale: 0.9 }}
                                     >
-                                        <Card as={motion.div} whileHover={cardHover} className="h-100 card-border border-start-4" style={{ borderLeftColor: `var(--bs-${statusColors[project.status].bg})` }}>
+                                        <Card as={motion.div} whileHover={cardHover} className="h-100 card-border border-start-4" style={{ borderLeftColor: `var(--bs-${statusColors[project.status]?.bg || 'secondary'})` }}>
                                             <Card.Body>
                                                 <div className="d-flex justify-content-between align-items-start mb-2">
-                                                    <Badge bg={statusColors[project.status].bg} className="px-2 py-1">
-                                                        {statusColors[project.status].label}
-                                                    </Badge>
+                                                    <div className="d-flex gap-1">
+                                                        <Badge bg={statusColors[project.status]?.bg || 'secondary'} className="px-2 py-1">
+                                                            {statusColors[project.status]?.label || project.status}
+                                                        </Badge>
+                                                        <Badge bg={project.category === 'SBPM' ? 'soft-warning' : 'soft-primary'} className={`px-2 py-1 ${project.category === 'SBPM' ? 'text-warning' : 'text-primary'}`}>
+                                                            {project.category || 'BPM'}
+                                                        </Badge>
+                                                    </div>
                                                     {canEditProject(project) && (
                                                         <div className="d-flex gap-1">
                                                             <button className="btn btn-flush text-muted" onClick={() => openEdit(project)}>
@@ -693,6 +797,62 @@ const ProcessMaps = () => {
                                         </Card>
                                     </motion.div>
                                 </Col>
+                                ) : (
+                                /* List View Mode */
+                                <Col xs={12} key={project.id} className="mb-2">
+                                    <motion.div 
+                                        variants={itemVariants}
+                                        layout
+                                        initial="hidden"
+                                        animate="visible"
+                                        exit={{ opacity: 0, x: -20 }}
+                                    >
+                                        <Card as={motion.div} whileHover={{ y: -2, boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }} className="card-border border-start-3" style={{ borderLeftColor: `var(--bs-${statusColors[project.status]?.bg || 'secondary'})` }}>
+                                            <Card.Body className="py-2 px-3">
+                                                <div className="d-flex align-items-center justify-content-between">
+                                                    <div className="d-flex align-items-center gap-3 flex-grow-1" style={{ minWidth: 0 }}>
+                                                        <div className="d-flex gap-1 flex-shrink-0">
+                                                            <Badge bg={statusColors[project.status]?.bg || 'secondary'} className="px-2 py-1" style={{ fontSize: '10px' }}>
+                                                                {statusColors[project.status]?.label || project.status}
+                                                            </Badge>
+                                                            <Badge bg={project.category === 'SBPM' ? 'soft-warning' : 'soft-primary'} className={`px-2 py-1 ${project.category === 'SBPM' ? 'text-warning' : 'text-primary'}`} style={{ fontSize: '10px' }}>
+                                                                {project.category || 'BPM'}
+                                                            </Badge>
+                                                        </div>
+                                                        <div className="text-truncate">
+                                                            <span className="fw-bold small">{project.name}</span>
+                                                            {project.division_name && (
+                                                                <span className="text-muted small ms-2">• {project.division_name}</span>
+                                                            )}
+                                                        </div>
+                                                        <div className="d-none d-md-flex gap-3 text-muted flex-shrink-0" style={{ fontSize: '11px' }}>
+                                                            <span>📋 {project.total_steps}</span>
+                                                            {project.bottlenecks > 0 && <span className="text-danger fw-bold">⚠️ {project.bottlenecks}</span>}
+                                                            <span>⏳ {getProjectAge(project.created_at)}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="d-flex align-items-center gap-2 flex-shrink-0">
+                                                        {canEditProject(project) && (
+                                                            <div className="d-flex gap-1">
+                                                                <button className="btn btn-flush text-muted btn-sm" onClick={() => openEdit(project)}>
+                                                                    <Edit2 size={13} />
+                                                                </button>
+                                                                <button className="btn btn-flush text-danger btn-sm" onClick={() => handleDelete(project.id)}>
+                                                                    <Trash2 size={13} />
+                                                                </button>
+                                                            </div>
+                                                        )}
+                                                        <Button variant="outline-primary" size="sm" className="d-flex align-items-center gap-1" style={{ fontSize: '11px' }} onClick={() => router.push(`/canvas/${project.id}`)}>
+                                                            <Map size={12} />
+                                                            Kanvas
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            </Card.Body>
+                                        </Card>
+                                    </motion.div>
+                                </Col>
+                                )
                             ))}
                         </AnimatePresence>
                     </Row>
@@ -715,6 +875,22 @@ const ProcessMaps = () => {
                             isInvalid={!!errors.name}
                         />
                         <Form.Control.Feedback type="invalid">{errors.name}</Form.Control.Feedback>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                        <Form.Label>Kategori <span className="text-danger">*</span></Form.Label>
+                        <Form.Select 
+                            value={form.category || 'BPM'} 
+                            onChange={e => setForm({ ...form, category: e.target.value })}
+                        >
+                            <option value="BPM">BPM — Bisnis Proses Manajemen</option>
+                            <option value="SBPM">SBPM — Sub Bisnis Proses Manajemen</option>
+                        </Form.Select>
+                        <Form.Text className="text-muted">
+                            {form.category === 'SBPM' 
+                                ? 'Sub-proses dari proses bisnis utama.' 
+                                : 'Proses bisnis utama organisasi.'
+                            }
+                        </Form.Text>
                     </Form.Group>
                     <Form.Group className="mb-3">
                         <Form.Label>Divisi <span className="text-danger">*</span></Form.Label>

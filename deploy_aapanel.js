@@ -4,7 +4,7 @@ const path = require('path');
 
 const CONFIG = {
     username: 'root',
-    host: '192.168.1.110',
+    host: '100.85.43.53',
     password: 'Jonggol100.',
     remotePath: '/www/wwwroot/bpi-app',
     zipName: 'bpi_deploy.zip',

@@ -15,7 +15,8 @@ async function migrate() {
             'fix_final_cleanup.sql',
             'fix_projects_schema_v3.sql',
             'fix_projects_performance_columns.sql',
-            'fix_actors_table.sql'
+            'fix_actors_table.sql',
+            'fix_projects_category.sql'
         ];
         
         for (const file of files) {

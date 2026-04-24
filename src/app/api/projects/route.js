@@ -20,6 +20,14 @@ export async function GET(request) {
         try {
             await pool.query('ALTER TABLE projects ADD COLUMN created_by INT NULL');
         } catch (e) { /* Ignore if exists */ }
+        try {
+            await pool.query("ALTER TABLE projects ADD COLUMN category VARCHAR(10) DEFAULT 'BPM' AFTER description");
+        } catch (e) { /* Ignore if exists */ }
+
+        // Read filter query params
+        const search = searchParams.get('search') || '';
+        const category = searchParams.get('category') || '';
+        const divisionId = searchParams.get('division_id') || '';
 
         let query = `
             SELECT p.*, d.name as division_name, pm.id as process_map_id, a.name as actor_name, u.full_name as creator_name
@@ -31,6 +39,19 @@ export async function GET(request) {
             WHERE p.tenant_id = ?
         `;
         let params = [tenantId];
+
+        if (search) {
+            query += ' AND p.name LIKE ?';
+            params.push(`%${search}%`);
+        }
+        if (category) {
+            query += ' AND p.category = ?';
+            params.push(category);
+        }
+        if (divisionId) {
+            query += ' AND p.division_id = ?';
+            params.push(divisionId);
+        }
         
         query += ' ORDER BY p.created_at DESC';
         
@@ -45,7 +66,7 @@ export async function GET(request) {
 export async function POST(request) {
     try {
         const body = await request.json();
-        const { name, description, tenant_id, division_id = null, actual_cost = 0, potential_saving_cost = 0, status = 'draft', pic = 'Unassigned', deadline = null, actor_id = null } = body;
+        const { name, description, tenant_id, division_id = null, actual_cost = 0, potential_saving_cost = 0, status = 'draft', pic = 'Unassigned', deadline = null, actor_id = null, category = 'BPM' } = body;
         const context = await getAuthorizedContext(request, tenant_id);
 
         if (!context) {
@@ -64,10 +85,13 @@ export async function POST(request) {
         try {
             await pool.query('ALTER TABLE projects ADD COLUMN created_by INT NULL');
         } catch (e) { /* Ignore if exists */ }
+        try {
+            await pool.query("ALTER TABLE projects ADD COLUMN category VARCHAR(10) DEFAULT 'BPM' AFTER description");
+        } catch (e) { /* Ignore if exists */ }
 
         const [result] = await pool.query(
-            'INSERT INTO projects (name, description, tenant_id, division_id, status, actual_cost, potential_saving_cost, pic, actor_id, deadline, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [name, description, tenantId, division_id || null, status, actual_cost, potential_saving_cost, pic, actor_id || null, deadline || null, user.id]
+            'INSERT INTO projects (name, description, category, tenant_id, division_id, status, actual_cost, potential_saving_cost, pic, actor_id, deadline, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [name, description, category || 'BPM', tenantId, division_id || null, status, actual_cost, potential_saving_cost, pic, actor_id || null, deadline || null, user.id]
         );
 
         // Fetch tenant name for better notification

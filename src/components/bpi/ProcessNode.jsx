@@ -219,6 +219,32 @@ const ProcessNode = memo(({ data, id, heatmapMode, allNodes, connectedHandles = 
                             💰 {formatRupiah(data.cost)}
                         </div>
                     )}
+                    {data.normTime && (() => {
+                        const deadline = new Date(data.normTime);
+                        const now = new Date();
+                        const isOverdue = deadline < now;
+                        const diffMs = deadline - now;
+                        const diffMins = Math.abs(diffMs) / (1000 * 60);
+                        let timeLabel = '';
+                        if (diffMins < 60) timeLabel = `${Math.round(diffMins)} mnt`;
+                        else if (diffMins < 1440) timeLabel = `${Math.round(diffMins / 60)} jam`;
+                        else timeLabel = `${Math.round(diffMins / 1440)} hari`;
+                        
+                        return (
+                            <div style={{
+                                fontSize: '10px',
+                                padding: '2px 8px',
+                                borderRadius: '20px',
+                                backgroundColor: isOverdue ? 'rgba(220, 53, 69, 0.2)' : 'rgba(13, 110, 253, 0.1)',
+                                color: isOverdue ? '#dc3545' : (isDark ? '#93c5fd' : '#0d6efd'),
+                                alignSelf: 'flex-start',
+                                fontWeight: 600,
+                                animation: isOverdue ? 'bottleneck-pulse 1.5s ease-in-out infinite' : 'none',
+                            }}>
+                                {isOverdue ? `🔴 -${timeLabel}` : `⏰ ${timeLabel}`}
+                            </div>
+                        );
+                    })()}
                 </div>
             </div>
 

@@ -50,10 +50,11 @@ export async function PUT(request, { params }) {
         const division_id = body.division_id !== undefined ? body.division_id : project.division_id;
         const frequency = body.frequency !== undefined ? body.frequency : project.frequency;
         const actor_id = body.actor_id !== undefined ? body.actor_id : project.actor_id;
+        const category = body.category !== undefined ? body.category : (project.category || 'BPM');
 
         await pool.query(
-            'UPDATE projects SET name = ?, description = ?, status = ?, actual_cost = ?, potential_saving_cost = ?, pic = ?, deadline = ?, division_id = ?, frequency = ?, actor_id = ? WHERE id = ?',
-            [name, description, status, actual_cost, potential_saving_cost, pic, deadline, division_id || null, frequency, actor_id || null, id]
+            'UPDATE projects SET name = ?, description = ?, status = ?, actual_cost = ?, potential_saving_cost = ?, pic = ?, deadline = ?, division_id = ?, frequency = ?, actor_id = ?, category = ? WHERE id = ?',
+            [name, description, status, actual_cost, potential_saving_cost, pic, deadline, division_id || null, frequency, actor_id || null, category, id]
         );
         return NextResponse.json({ message: 'Project updated' });
     } catch (error) {

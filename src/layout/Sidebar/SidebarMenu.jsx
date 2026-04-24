@@ -23,6 +23,18 @@ export const SidebarMenu = [
                 grp_name: "apps",
             },
             {
+                name: 'Kanvas BPM',
+                icon: <Icons.ChartDots />,
+                path: '/canvas-bpm',
+                grp_name: "apps",
+            },
+            {
+                name: 'Kanvas SBPM',
+                icon: <Icons.ChartDots3 />,
+                path: '/canvas-sbpm',
+                grp_name: "apps",
+            },
+            {
                 name: 'Pelacak Tindakan',
                 icon: <Icons.LayoutKanban />,
                 path: '/action-tracker',
