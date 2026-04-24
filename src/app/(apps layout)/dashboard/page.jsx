@@ -25,8 +25,8 @@ const Dashboard = () => {
             >
                 <div className="d-flex flex-wrap justify-content-between align-items-center mb-4">
                     <div className="mb-3 mb-md-0">
-                        <h1 className="pg-title mb-1" style={{ color: '#000' }}>🏠 Dashboard Utama</h1>
-                        <p className="mb-0" style={{ color: '#000' }}>Selamat datang kembali di sistem Business Process Improvement (BPI).</p>
+                        <h1 className="pg-title mb-1">🏠 Dashboard Utama</h1>
+                        <p className="mb-0 text-muted">Selamat datang kembali di sistem Business Process Improvement (BPI).</p>
                     </div>
                     <div style={{ minWidth: '220px' }}>
                         <WorkspaceSwitcher />
@@ -41,8 +41,8 @@ const Dashboard = () => {
                                     <Map size={24} strokeWidth={2} />
                                 </div>
                                 <div>
-                                    <h5 className="fw-bold mb-1" style={{ color: '#000' }}>Peta Proses</h5>
-                                    <p className="small mb-0" style={{ color: '#000' }}>Kelola dan petakan alur kerja.</p>
+                                    <h5 className="fw-bold mb-1">Peta Proses</h5>
+                                    <p className="small mb-0 text-muted">Kelola dan petakan alur kerja.</p>
                                 </div>
                             </Card.Body>
                         </Card>
@@ -54,8 +54,8 @@ const Dashboard = () => {
                                     <Activity size={24} strokeWidth={2} />
                                 </div>
                                 <div>
-                                    <h5 className="fw-bold mb-1" style={{ color: '#000' }}>Analisis Performa</h5>
-                                    <p className="small mb-0" style={{ color: '#000' }}>Pantau efisiensi proyek.</p>
+                                    <h5 className="fw-bold mb-1">Analisis Performa</h5>
+                                    <p className="small mb-0 text-muted">Pantau efisiensi proyek.</p>
                                 </div>
                             </Card.Body>
                         </Card>
@@ -67,8 +67,8 @@ const Dashboard = () => {
                                     <CheckSquare size={24} strokeWidth={2} />
                                 </div>
                                 <div>
-                                    <h5 className="fw-bold mb-1" style={{ color: '#000' }}>Pelacak Tindakan</h5>
-                                    <p className="small mb-0" style={{ color: '#000' }}>Pantau implementasi solusi.</p>
+                                    <h5 className="fw-bold mb-1">Pelacak Tindakan</h5>
+                                    <p className="small mb-0 text-muted">Pantau implementasi solusi.</p>
                                 </div>
                             </Card.Body>
                         </Card>
