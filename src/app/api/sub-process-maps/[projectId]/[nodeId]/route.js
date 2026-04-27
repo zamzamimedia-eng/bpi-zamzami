@@ -3,21 +3,23 @@ import pool from '@/lib/db';
 import { getAuthorizedContext } from '@/lib/auth';
 
 export async function GET(request, { params }) {
-    const { processMapId, nodeId } = await params;
+    const { projectId, nodeId } = await params;
     
     try {
-        // Find the project ID first
-        const [maps] = await pool.query('SELECT project_id FROM process_maps WHERE id = ?', [processMapId]);
-        if (maps.length === 0) return NextResponse.json({ message: 'Process map not found' }, { status: 404 });
-        
-        const projectId = maps[0].project_id;
-        
         // Find project to get tenant and ownership
         const [projects] = await pool.query('SELECT tenant_id, created_by FROM projects WHERE id = ?', [projectId]);
         if (projects.length === 0) return NextResponse.json({ message: 'Project not found' }, { status: 404 });
         
         const context = await getAuthorizedContext(request, projects[0].tenant_id);
         if (!context) return NextResponse.json({ message: 'Akses Ditolak' }, { status: 403 });
+
+        // Find the process map ID
+        const [maps] = await pool.query('SELECT id FROM process_maps WHERE project_id = ?', [projectId]);
+        if (maps.length === 0) {
+            return NextResponse.json({ id: null, canvas_json: null, can_edit: (projects[0].created_by === null || context.user.id === projects[0].created_by || context.user.role === 'admin') });
+        }
+        
+        const processMapId = maps[0].id;
 
         const [rows] = await pool.query('SELECT id, canvas_json FROM sub_process_maps WHERE process_map_id = ? AND node_id = ?', [processMapId, nodeId]);
         if (rows.length === 0) {
@@ -41,13 +43,8 @@ export async function GET(request, { params }) {
 }
 
 export async function POST(request, { params }) {
-    const { processMapId, nodeId } = await params;
+    const { projectId, nodeId } = await params;
     try {
-        const [maps] = await pool.query('SELECT project_id FROM process_maps WHERE id = ?', [processMapId]);
-        if (maps.length === 0) return NextResponse.json({ message: 'Process map not found' }, { status: 404 });
-        
-        const projectId = maps[0].project_id;
-        
         // Check ownership
         const [projects] = await pool.query('SELECT tenant_id, created_by FROM projects WHERE id = ?', [projectId]);
         if (projects.length === 0) return NextResponse.json({ message: 'Project not found' }, { status: 404 });
@@ -58,6 +55,21 @@ export async function POST(request, { params }) {
         // Ownership checks
         if (projects[0].created_by && context.user.id !== projects[0].created_by && context.user.role !== 'admin') {
             return NextResponse.json({ message: 'Hanya pembuat proyek yang bisa menyimpan perubahan kanvas.' }, { status: 403 });
+        }
+
+        // Find the process map ID
+        const [maps] = await pool.query('SELECT id FROM process_maps WHERE project_id = ?', [projectId]);
+        let processMapId;
+        
+        if (maps.length === 0) {
+            // Auto-create empty parent canvas if not exists
+            const [insertResult] = await pool.query(
+                'INSERT INTO process_maps (project_id, canvas_json) VALUES (?, ?)',
+                [projectId, '{"nodes":[],"edges":[]}']
+            );
+            processMapId = insertResult.insertId;
+        } else {
+            processMapId = maps[0].id;
         }
 
         const body = await request.json();
