@@ -184,7 +184,7 @@ const CanvasClient = ({ isSbpmMode = false, parentProjectId = null, parentNodeId
         } catch (error) { 
             alert('Kesalahan koneksi saat menyimpan: ' + error.message); 
         }
-    }, [nodes, edges, rootCauseData, params.id]);
+    }, [nodes, edges, rootCauseData, params.id, isSbpmMode, parentProjectId, parentNodeId]);
 
     const handleDeleteSelected = useCallback(() => {
         const nodeIds = selectedElements.nodes.map(n => n.id);
@@ -560,8 +560,9 @@ const CanvasClient = ({ isSbpmMode = false, parentProjectId = null, parentNodeId
                 setEdges(getInitialEdges());
             }
         };
-        if (params.id) loadCanvas();
-    }, [params.id, setNodes, setEdges]);
+        const canvasId = isSbpmMode ? parentProjectId : params.id;
+        if (canvasId) loadCanvas();
+    }, [params.id, isSbpmMode, parentProjectId, parentNodeId, setNodes, setEdges]);
 
     useEffect(() => {
         if (!processMapId) return;

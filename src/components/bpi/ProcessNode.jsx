@@ -4,11 +4,9 @@ import { memo, useMemo, useState } from 'react';
 import QuickAddHandle from './QuickAddHandle';
 import QuickAddButton from './QuickAddButton';
 import { useTheme } from '@/layout/theme-provider/theme-provider';
-import { useRouter } from 'next/navigation';
 
 const ProcessNode = memo(({ data, id, heatmapMode, allNodes, connectedHandles = {}, taskStatus, hasRootCause, isBpmProject, hasSubCanvas, projectId }) => {
     const { theme } = useTheme();
-    const router = useRouter();
     const isDark = theme === 'dark';
     const [isHovered, setIsHovered] = useState(false);
     
@@ -280,7 +278,7 @@ const ProcessNode = memo(({ data, id, heatmapMode, allNodes, connectedHandles = 
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
-                                router.push(`/sub-canvas/${projectId}/${id}`);
+                                window.location.href = `/sub-canvas/${projectId}/${id}`;
                             }}
                             className="btn btn-sm btn-info text-white w-100"
                             style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '4px' }}
