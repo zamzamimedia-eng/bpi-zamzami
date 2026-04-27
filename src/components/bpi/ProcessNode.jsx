@@ -5,7 +5,7 @@ import QuickAddHandle from './QuickAddHandle';
 import QuickAddButton from './QuickAddButton';
 import { useTheme } from '@/layout/theme-provider/theme-provider';
 
-const ProcessNode = memo(({ data, id, heatmapMode, allNodes, connectedHandles = {}, taskStatus, hasRootCause }) => {
+const ProcessNode = memo(({ data, id, heatmapMode, allNodes, connectedHandles = {}, taskStatus, hasRootCause, isBpmProject, hasSubCanvas, projectId }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
     const [isHovered, setIsHovered] = useState(false);
@@ -159,6 +159,29 @@ const ProcessNode = memo(({ data, id, heatmapMode, allNodes, connectedHandles = 
                         zIndex: 5
                     }}>
                         {data.stepNumber}
+                    </div>
+                )}
+                {/* Sub-Canvas Indicator */}
+                {hasSubCanvas && (
+                    <div style={{
+                        position: 'absolute',
+                        top: '-10px',
+                        left: hasRootCause ? '20px' : '-10px',
+                        width: '24px',
+                        height: '24px',
+                        backgroundColor: '#ffc107',
+                        color: '#000',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '11px',
+                        fontWeight: 'bold',
+                        border: '2px solid #fff',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                        zIndex: 5
+                    }} title="Sub-Kanvas (SBPM) Tersedia">
+                        📂
                     </div>
                 )}
                 {/* 5 Whys Indicator */}

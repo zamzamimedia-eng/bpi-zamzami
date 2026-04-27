@@ -1,0 +1,9 @@
+const http = require('http');
+const server = http.createServer((req, res) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/plain');
+  res.end('Hello from Dummy Server\n');
+});
+server.listen(3000, '0.0.0.0', () => {
+  console.log('Dummy server running on port 3000');
+});

@@ -1,0 +1,72 @@
+// Mock data for BPI projects
+export const initialProjects = [
+    {
+        id: 1,
+        tenant_id: 1,
+        name: "Perbaikan Alur Reimbursement",
+        description: "Mempercepat proses klaim reimbursement yang saat ini memakan waktu 14 hari kerja.",
+        status: "analyzing",
+        created_by: "Ahmad Rizki",
+        created_at: "2026-02-15T08:00:00Z",
+        updated_at: "2026-03-10T10:30:00Z",
+        total_steps: 12,
+        bottlenecks: 3,
+        potential_saving_time: 45,
+        potential_saving_cost: 15000000,
+    },
+    {
+        id: 2,
+        tenant_id: 1,
+        name: "Optimasi Proses Pengadaan Barang",
+        description: "Mengurangi lead time pengadaan dari 30 hari menjadi 15 hari.",
+        status: "draft",
+        created_by: "Sari Dewi",
+        created_at: "2026-03-01T09:00:00Z",
+        updated_at: "2026-03-01T09:00:00Z",
+        total_steps: 8,
+        bottlenecks: 0,
+        potential_saving_time: 0,
+        potential_saving_cost: 0,
+    },
+    {
+        id: 3,
+        tenant_id: 1,
+        name: "Streamlining Onboarding Karyawan",
+        description: "Menyederhanakan proses onboarding karyawan baru dari 5 hari menjadi 2 hari.",
+        status: "executing",
+        created_by: "Budi Santoso",
+        created_at: "2026-01-20T08:30:00Z",
+        updated_at: "2026-03-20T14:45:00Z",
+        total_steps: 15,
+        bottlenecks: 4,
+        potential_saving_time: 60,
+        potential_saving_cost: 8000000,
+    },
+    {
+        id: 4,
+        tenant_id: 1,
+        name: "Perbaikan Alur Persetujuan Cuti",
+        description: "Menghilangkan bottleneck pada proses approval cuti multi-level.",
+        status: "completed",
+        created_by: "Ahmad Rizki",
+        created_at: "2026-01-05T10:00:00Z",
+        updated_at: "2026-02-28T16:20:00Z",
+        total_steps: 6,
+        bottlenecks: 1,
+        potential_saving_time: 80,
+        potential_saving_cost: 5000000,
+    },
+];
+
+export const initialTenants = [
+    { id: 1, name: "PT. Maju Bersama", plan: "Enterprise" },
+    { id: 2, name: "CV. Karya Mandiri", plan: "Basic" },
+    { id: 3, name: "PT. Dhayu Travel", plan: "Enterprise" },
+];
+
+export const statusColors = {
+    draft: { bg: 'secondary', label: 'Draft' },
+    analyzing: { bg: 'info', label: 'Analyzing' },
+    executing: { bg: 'warning', label: 'Executing' },
+    completed: { bg: 'success', label: 'Completed' },
+};

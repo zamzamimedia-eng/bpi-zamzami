@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS sub_process_maps (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  process_map_id INT NOT NULL,
+  node_id VARCHAR(100) NOT NULL,
+  canvas_json LONGTEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_node (process_map_id, node_id)
+);

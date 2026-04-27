@@ -31,7 +31,7 @@ const getInitialNodes = () => [];
 
 const getInitialEdges = () => [];
 
-const CanvasClient = () => {
+const CanvasClient = ({ isSbpmMode = false, parentProjectId = null, parentNodeId = null }) => {
     const router = useRouter();
     const params = useParams();
     const reactFlowWrapper = useRef(null);
@@ -60,6 +60,8 @@ const CanvasClient = () => {
     const [taskStatusMap, setTaskStatusMap] = useState({});
     const [actors, setActors] = useState([]);
     const [canEdit, setCanEdit] = useState(true);
+    const [projectCategory, setProjectCategory] = useState('BPM');
+    const [subCanvasNodes, setSubCanvasNodes] = useState([]);
     const lastMousePos = useRef({ x: 200, y: 200 });
     const pasteCount = useRef(1);
 
@@ -160,7 +162,11 @@ const CanvasClient = () => {
     const handleSaveCanvas = useCallback(async () => {
         const canvasData = { nodes, edges, rootCauseData };
         try {
-            const res = await fetch(`/api/process-maps/${params.id}`, {
+            const endpoint = isSbpmMode 
+                ? `/api/sub-process-maps/${parentProjectId}/${parentNodeId}` 
+                : `/api/process-maps/${params.id}`;
+                
+            const res = await fetch(endpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ canvas_json: JSON.stringify(canvasData) })
@@ -462,6 +468,9 @@ const CanvasClient = () => {
                     connectedHandles={connectedHandlesMap[props.id] || {}} 
                     taskStatus={taskStatusMap[props.id]}
                     hasRootCause={!!rootCauseData[props.id] && (!!rootCauseData[props.id].problemStatement || rootCauseData[props.id].whys?.some(w => typeof w === 'string' && w.trim() !== ''))}
+                    isBpmProject={projectCategory === 'BPM' && !isSbpmMode}
+                    hasSubCanvas={subCanvasNodes.includes(props.id)}
+                    projectId={params.id || parentProjectId}
                 />
             ),
             decision: (props) => (
@@ -482,7 +491,11 @@ const CanvasClient = () => {
     useEffect(() => {
         const loadCanvas = async () => {
             try {
-                const res = await fetch(`/api/process-maps/${params.id}`);
+                const endpoint = isSbpmMode 
+                    ? `/api/sub-process-maps/${parentProjectId}/${parentNodeId}`
+                    : `/api/process-maps/${params.id}`;
+                    
+                const res = await fetch(endpoint);
                 const data = await res.json();
                 console.log('[Canvas Load] API response:', { id: data?.id, hasCanvasJson: !!data?.canvas_json, canvasJsonType: typeof data?.canvas_json });
                 
@@ -529,6 +542,12 @@ const CanvasClient = () => {
                     }
                     if (data.can_edit !== undefined) {
                         setCanEdit(data.can_edit);
+                    }
+                    if (data.project_category) {
+                        setProjectCategory(data.project_category);
+                    }
+                    if (data.sub_canvas_nodes) {
+                        setSubCanvasNodes(data.sub_canvas_nodes);
                     }
                 } else {
                     console.log('[Canvas Load] No canvas data found, using empty canvas');
@@ -689,14 +708,25 @@ const CanvasClient = () => {
                 {/* Toolbar Panel */}
                 <Panel position="top-left" className="d-flex gap-3 flex-wrap bg-white p-2 rounded-3 shadow-sm border border-light-subtle align-items-center">
                     {/* Group 1: Navigation */}
-                    <Button 
-                        variant="link" 
-                        className="p-1 link-secondary text-decoration-none d-flex align-items-center gap-1" 
-                        onClick={() => router.push('/process-maps')}
-                        title="Kembali ke Daftar Map"
-                    >
-                        <ArrowLeft size={18} />
-                    </Button>
+                    {isSbpmMode ? (
+                        <Button 
+                            variant="link" 
+                            className="p-1 link-secondary text-decoration-none d-flex align-items-center gap-1" 
+                            onClick={() => router.push(`/canvas/${parentProjectId}`)}
+                            title="Kembali ke Kanvas Utama"
+                        >
+                            <ArrowLeft size={18} />
+                        </Button>
+                    ) : (
+                        <Button 
+                            variant="link" 
+                            className="p-1 link-secondary text-decoration-none d-flex align-items-center gap-1" 
+                            onClick={() => router.push('/process-maps')}
+                            title="Kembali ke Daftar Map"
+                        >
+                            <ArrowLeft size={18} />
+                        </Button>
+                    )}
 
                     <div className="vr text-secondary opacity-25" style={{ height: '20px' }}></div>
 
@@ -873,6 +903,8 @@ const CanvasClient = () => {
                     onDelete={handleDeleteNode}
                     actors={actors}
                     canEdit={canEdit}
+                    isBpmProject={projectCategory === 'BPM' && !isSbpmMode}
+                    projectId={params.id || parentProjectId}
                 />
             )}
 

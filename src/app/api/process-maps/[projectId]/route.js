@@ -7,7 +7,7 @@ export async function GET(request, { params }) {
     console.log(`[API Load Canvas] Project ID: ${projectId}`);
     try {
         // First find the project to get tenant_id
-        const [projects] = await pool.query('SELECT tenant_id, created_by FROM projects WHERE id = ?', [projectId]);
+        const [projects] = await pool.query('SELECT tenant_id, created_by, category FROM projects WHERE id = ?', [projectId]);
         if (projects.length === 0) return NextResponse.json({ message: 'Project not found' }, { status: 404 });
         
         const context = await getAuthorizedContext(request, projects[0].tenant_id);
@@ -35,11 +35,17 @@ export async function GET(request, { params }) {
             taskStatusMap[t.source_node_id] = t.status;
         });
 
+        // Find nodes with sub-canvases
+        const [subMaps] = await pool.query('SELECT node_id FROM sub_process_maps WHERE process_map_id = ?', [row.id]);
+        const subCanvasNodes = subMaps.map(sm => sm.node_id);
+
         return NextResponse.json({ 
             id: row.id, 
             canvas_json: canvasJsonStr,
             to_be_json: row.to_be_json,
             task_status_map: taskStatusMap,
+            project_category: projects[0].category || 'BPM',
+            sub_canvas_nodes: subCanvasNodes,
             can_edit: (projects[0].created_by === null || context.user.id === projects[0].created_by || context.user.role === 'admin')
         });
     } catch (error) {

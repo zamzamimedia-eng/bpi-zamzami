@@ -2,8 +2,10 @@
 import { Modal, Form, Button, Row, Col } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
 import { Trash2 } from 'react-feather';
+import { useRouter } from 'next/navigation';
 
-const NodeEditModal = ({ show, onHide, node, onSave, onDelete, actors = [], canEdit = true }) => {
+const NodeEditModal = ({ show, onHide, node, onSave, onDelete, actors = [], canEdit = true, isBpmProject = false, projectId = null }) => {
+    const router = useRouter();
     const [form, setForm] = useState({
         label: '',
         role: '',
@@ -194,6 +196,11 @@ const NodeEditModal = ({ show, onHide, node, onSave, onDelete, actors = [], canE
                     )}
                 </div>
                 <div className="d-flex gap-2">
+                    {isBpmProject && (
+                        <Button variant="info" className="text-white" onClick={() => router.push(`/sub-canvas/${projectId}/${node.id}`)}>
+                            Buka Sub-Kanvas 📂
+                        </Button>
+                    )}
                     <Button variant="secondary" onClick={onHide}>{canEdit ? 'Batal' : 'Tutup'}</Button>
                     {canEdit && <Button variant="primary" onClick={handleSave}>Simpan</Button>}
                 </div>
