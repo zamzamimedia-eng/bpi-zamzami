@@ -4,9 +4,11 @@ import { memo, useMemo, useState } from 'react';
 import QuickAddHandle from './QuickAddHandle';
 import QuickAddButton from './QuickAddButton';
 import { useTheme } from '@/layout/theme-provider/theme-provider';
+import { useRouter } from 'next/navigation';
 
 const ProcessNode = memo(({ data, id, heatmapMode, allNodes, connectedHandles = {}, taskStatus, hasRootCause, isBpmProject, hasSubCanvas, projectId }) => {
     const { theme } = useTheme();
+    const router = useRouter();
     const isDark = theme === 'dark';
     const [isHovered, setIsHovered] = useState(false);
     
@@ -269,6 +271,24 @@ const ProcessNode = memo(({ data, id, heatmapMode, allNodes, connectedHandles = 
                         );
                     })()}
                 </div>
+
+                {isBpmProject && (
+                    <div 
+                        className="mt-2 text-center"
+                        style={{ borderTop: `1px dashed ${isDark ? '#334155' : '#e0e0e0'}`, paddingTop: '8px' }}
+                    >
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/sub-canvas/${projectId}/${id}`);
+                            }}
+                            className="btn btn-sm btn-info text-white w-100"
+                            style={{ fontSize: '11px', padding: '4px 8px', borderRadius: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '4px' }}
+                        >
+                            📂 {hasSubCanvas ? 'Buka Sub-Kanvas' : 'Buat Sub-Kanvas'}
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Handle dots only - restored to the border, rendered after content for z-index */}
