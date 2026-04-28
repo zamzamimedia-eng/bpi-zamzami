@@ -56,7 +56,7 @@ const ProcessNode = memo(({ data, id, heatmapMode, allNodes, connectedHandles = 
     }, [heatmapMode, allNodes, durationMinutes]);
 
     const stringToColor = (str) => {
-        if (!str || str === '👤 Peran') return null;
+        if (!str || str === 'Peran' || str === '👤 Peran') return null;
         let hash = 0;
         for (let i = 0; i < str.length; i++) {
             hash = str.charCodeAt(i) + ((hash << 5) - hash);
@@ -208,7 +208,7 @@ const ProcessNode = memo(({ data, id, heatmapMode, allNodes, connectedHandles = 
                     </div>
                 )}
                 <div style={{ fontSize: '11px', opacity: 0.7, marginBottom: '4px' }}>
-                    {data.role || '👤 Peran'}
+                    👤 {data.role || 'Peran'}
                 </div>
                 <div style={{ fontWeight: 600, fontSize: '13px', marginBottom: '4px' }}>
                     {data.action || data.label || 'Langkah Proses'}

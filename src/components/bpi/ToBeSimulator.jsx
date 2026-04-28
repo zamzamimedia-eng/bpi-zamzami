@@ -251,7 +251,7 @@ const ToBeSimulator = ({ asIsNodes, asIsEdges, toBeCanvasJson, nodeTypes: _, onC
             type,
             position: { x: 100, y: 100 },
             data: type === 'process' 
-                ? { label: 'Langkah Baru', role: '👤 Peran', action: 'Aksi Baru', duration: 1, durationUnit: 'jam', cost: 0 }
+                ? { label: 'Langkah Baru', role: 'Peran', action: 'Aksi Baru', duration: 1, durationUnit: 'jam', cost: 0 }
                 : { label: 'Keputusan Baru', question: 'Pertanyaan?' },
         };
         setToBeNodes((nds) => nds.concat(newNode));
@@ -320,7 +320,7 @@ const ToBeSimulator = ({ asIsNodes, asIsEdges, toBeCanvasJson, nodeTypes: _, onC
             id: newId,
             type: 'process',
             position: { x: midX - 90, y: midY - 40 },
-            data: { label: 'Langkah Baru', role: '👤 Peran', action: 'Aksi Baru', duration: 1, durationUnit: 'jam', cost: 0 },
+            data: { label: 'Langkah Baru', role: 'Peran', action: 'Aksi Baru', duration: 1, durationUnit: 'jam', cost: 0 },
         };
         const oldEdge = toBeEdges.find(e => e.id === edgeId);
         const edgeStyle = oldEdge?.style || { stroke: '#6c757d' };
@@ -365,7 +365,7 @@ const ToBeSimulator = ({ asIsNodes, asIsEdges, toBeCanvasJson, nodeTypes: _, onC
                 y: sourceNode.position.y + offsetY + (sourceHandleId === 'no' ? 100 : 0) 
             },
             data: newNodeType === 'process' 
-                ? { label: 'Langkah Baru', role: '👤 Peran', action: 'Aksi Baru', duration: 1, durationUnit: 'jam', cost: 0 }
+                ? { label: 'Langkah Baru', role: 'Peran', action: 'Aksi Baru', duration: 1, durationUnit: 'jam', cost: 0 }
                 : { label: 'Keputusan Baru', question: 'Pertanyaan?' },
         };
 

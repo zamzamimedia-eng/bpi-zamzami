@@ -17,7 +17,8 @@ async function migrate() {
             'fix_projects_performance_columns.sql',
             'fix_actors_table.sql',
             'fix_projects_category.sql',
-            'fix_sub_process_maps.sql'
+            'fix_sub_process_maps.sql',
+            'fix_utf8mb4_charset.sql'
         ];
         
         for (const file of files) {
